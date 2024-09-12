@@ -106,7 +106,7 @@ class RabbitMQService
             'x-message-ttl' => ['I', 15000],
         ];
 
-        $this->channel->queue_declare($queueName, false, true, false, false, false, false, $args);
+        $this->channel->queue_declare($queueName, false, true, false, false, false, $args);
         $this->channel->queue_declare('failed_queue', false, true, false, false, []);
     }
 
