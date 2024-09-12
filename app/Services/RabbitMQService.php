@@ -37,8 +37,6 @@ class RabbitMQService
             auto_delete: false
         );
 
-        $this->declareQueueWithDLX($this->queueName);
-
         $this->channel->confirm_select();
         $this->channel->basic_qos(prefetch_size: 0, prefetch_count: $this->prefetchCount, a_global: null);
     }
@@ -91,43 +89,6 @@ class RabbitMQService
         }
         $this->channel->publish_batch();
         $this->channel->wait_for_pending_acks();
-    }
-
-    /**
-     * Declare a queue with Dead Letter Exchange and TTL settings.
-     *
-     * @param string $queueName
-     */
-    public function declareQueueWithDLX(string $queueName): void
-    {
-        $args = [
-            'x-dead-letter-exchange' => ['S', 'dlx_exchange'],
-            'x-dead-letter-routing-key' => ['S', 'failed_queue'],
-            'x-message-ttl' => ['I', 15000],
-        ];
-
-        $this->channel->queue_declare($queueName, false, true, false, false, false, $args);
-        $this->channel->queue_declare('failed_queue', false, true, false, false);
-    }
-
-    public function consumeFailedMessages(): void
-    {
-        $this->channel->basic_consume(
-            'failed_queue',
-            '',
-            false,
-            false,
-            false,
-            false,
-            function (AMQPMessage $msg) {
-                Log::error("Failed message reprocessing: " . $msg->getBody());
-                $this->channel->basic_ack($msg->get('delivery_tag'));
-            }
-        );
-
-        while ($this->channel->is_consuming()) {
-            $this->channel->wait();
-        }
     }
 
     /**
