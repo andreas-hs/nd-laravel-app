@@ -107,7 +107,7 @@ class RabbitMQService
         ];
 
         $this->channel->queue_declare($queueName, false, true, false, false, false, $args);
-        $this->channel->queue_declare('failed_queue', false, true, false, false, []);
+        $this->channel->queue_declare('failed_queue', false, true, false, false);
     }
 
     public function consumeFailedMessages(): void
