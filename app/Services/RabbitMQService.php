@@ -103,11 +103,11 @@ class RabbitMQService
         $args = [
             'x-dead-letter-exchange' => ['S', 'dlx_exchange'],
             'x-dead-letter-routing-key' => ['S', 'failed_queue'],
-            'x-message-ttl' => ['I', 60000],
+            'x-message-ttl' => ['I', 15000],
         ];
 
         $this->channel->queue_declare($queueName, false, true, false, false, false, false, $args);
-        $this->channel->queue_declare('failed_queue', false, true, false, false);
+        $this->channel->queue_declare('failed_queue', false, true, false, false, []);
     }
 
     public function consumeFailedMessages(): void
